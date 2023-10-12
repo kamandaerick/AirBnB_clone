@@ -6,14 +6,21 @@ from datetime import datetime
 
 class BaseModel(object):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """
         Initialize a new instance of the BAseModel class.
         Generate a unique ID, set creation and updation time
         """
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        if kwargs:
+            for key, value in kwargs.items():
+                if key != "__class__":
+                    setattr(self, key, value)
+            self.created_at = datetime.fromisoformat(kwargs["created_at"])
+            self.updated_at = datetime.fromisoformat(kwargs["updated_at"])
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
 
     def __str__(self):
         """
