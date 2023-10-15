@@ -4,7 +4,8 @@ from models.base_model import BaseModel
 
 
 class User(BaseModel):
-    email = ""
-    password = ""
-    first_name = ""
-    last_name = ""
+    """Class User that inherits from the class BAseModel"""
+    email: str = ""
+    password: str = ""
+    first_name: str = ""
+    last_name: str = ""
