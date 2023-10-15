@@ -2,6 +2,7 @@
 """This module defines the storage class"""
 import json
 import os
+
 from models.base_model import BaseModel
 
 
@@ -11,7 +12,7 @@ class FileStorage:
 
     def all(self) -> dict:
         """Returns the dictionary __Ojects"""
-        return FileStorage.__objects
+        return self.__objects
 
     def new(self, obj: BaseModel):
         """
@@ -19,25 +20,17 @@ class FileStorage:
         In __objects the obj with key <obj class name>.id
         """
         k = f"{obj.get_name()}.{obj.id}"
-        FileStorage.__objects[k] = obj
+        self.__objects[k] = obj.to_dict()
 
     def save(self):
         """Serialzies __objects to a json"""
+        json_object = json.dumps(self.__objects)
 
-        obj_dict = {}
-        for key, obj in FileStorage.__objects.items():
-            obj_dict[key] = obj.to_dict()
         with open(self.__file_path, 'w') as fp:
-            json.dump(obj_dict, fp)
+            fp.write(json_object)
 
     def reload(self):
         """Deserializes a json file to __objects"""
-
         if os.path.exists(self.__file_path):
-            with open(self.__file_path, 'r', encoding='utf-8') as user_file:
-                data = json.load(user_file)
-                for key, value in data.items():
-                    class_name, obj_id = key.split('.')
-                    obj_data = value
-                    obj = globals()[class_name](**obj_data)
-                    FileStorage.__objects[key] = obj
+            with open(self.__file_path) as user_file:
+                self.__objects = json.load(user_file)
