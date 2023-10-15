@@ -2,7 +2,11 @@
 """An interpreter for my AirBnB clone commands"""
 import cmd
 import sys
-
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 from typing import Dict
 
 from models.base_model import BaseModel
@@ -10,6 +14,7 @@ from models.base_model import BaseModel
 
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
+    classes = ["BaseModel", "Place", "State", "City", "Amenity", "Review"]
 
     def do_quit(self, args):
         """Quit command to exit the program\n"""
@@ -24,13 +29,15 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """Create a new instance of BaseModel and save to JSON"""
-        if args == BaseModel.get_name():
-            new_base_model = BaseModel()
-            new_base_model.save()
-            print(new_base_model.id)
-        elif not args:
+        if not args:
             print("** class name missing **")
-        elif args != BaseModel.get_name():
+            return
+        try:
+            cls = eval(args)
+            new_instance = cls()
+            new_instance.save()
+            print(new_instance.id)
+        except NameError:
             print("** class doesn't exist **")
 
     def do_show(self, args):
@@ -38,78 +45,53 @@ class HBNBCommand(cmd.Cmd):
         instance based on class name and id"""
         if not args:
             print("** class name missing **")
-        elif len(args.split()) == 1:
-            # first if
-            if args != BaseModel.get_name():
-                print("** class doesn't exist **")
+            return
+        args_list = args.split()
+        if len(args_list) < 2:
+            print("** instance id missing **")
+            return
+        try:
+            cls = eval(args_list[0])
+            instance = storage.get(cls, args_list[1])
+            if instance:
+                print(instance)
             else:
-                print("** instance id missing **")
-        elif len(args.split()) == 2:
-            _name = args.split()[0]
-            _id = args.split()[1]
-            if _name != BaseModel.get_name():
-                print("** class doesn't exist **")
-            else:
-                # access the stored models
-                from models import storage
-                data = list(storage.all().values())
-                for d in data:
-                    if d.get('id') == _id:
-                        bm = BaseModel(**d)
-                        print(str(bm))
-                        break
-                    else:
-                        print('** no instance found **')
-                        break
+                print("** no instance found **")
+        except NameError:
+            print("** class doesn't exist **")
 
     def do_destroy(self, args):
         """Destroys an object"""
         if not args:
             print("** class name missing **")
-        elif len(args.split()) == 1:
-            if args != BaseModel.get_name():
-                print("** class doesn't exist **")
+            return
+        args_list = args.split()
+        if len(args_list) < 2:
+            print("** instance id missing **")
+            return
+        try:
+            cls = eval(args_list[0])
+            instance = storage.get(cls, args_list[1])
+            if instance:
+                storage.delete(instance)
+                storage.save()
             else:
-                print("** instance id missing **")
-        elif len(args.split()) == 2:
-            _name = args.split()[0]
-            _id = args.split()[1]
-            if _name != BaseModel.get_name():
-                print("** class doesn't exist **")
-            else:
-                # access the stored models
-                from models import storage
-
-                _data = storage.all()
-                data = _data.items()
-                key_to_del = ''
-                for k, v in data:
-                    if v.get('id') == _id:
-                        key_to_del = k
-                        break
-                    else:
-                        print('** no instance found **')
-                        break
-
-                del _data[key_to_del]
-                for k, v in _data.items():
-                    bm = BaseModel(**v)
-                    bm.save()
+                print("** no instance found **")
+        except NameError:
+            print("** class doesn't exist **")
 
     def do_all(self, args):
         """Print all string representation of all instances
         based or not on the class name"""
-        if len(args.split()) == 1 or len(args.split()) == 0:
-            if len(args.split()) == 1 and args != BaseModel.get_name():
-                print("** class doesn't exist **")
-            else:
-                from models import storage
-                all_data = []
-                data = list(storage.all().values())
-                for d in data:
-                    bm = BaseModel(**d)
-                    all_data.append(str(bm))
-                print(all_data)
+        args_list = args.split()
+        if not args:
+            print([str(obj) for obj in storage.all().values()])
+        elif args_list[0] in classes:
+            print([
+                str(obj) for obj in storage.all(eval(args_list[0])).values()
+                ])
+        else:
+            print("** class doesn't exist **")
 
     def do_update(self, args):
         """Update an instance based on the class name and id
@@ -117,39 +99,33 @@ class HBNBCommand(cmd.Cmd):
          """
         if not args:
             print("** class name missing **")
-        else:
-            arg_list = args.split()
-            class_name = arg_list[0]
-            if class_name != BaseModel.get_name():
-                print("** class doesn't exist **")
-            elif len(arg_list) < 2:
-                print("** instance id missing **")
+            return
+        args_list = args.split()
+        if len(args_list) < 2:
+            print("** instance id missing **")
+            return
+        if len(args_list) < 3:
+            print("** attribute name missing **")
+            return
+        if len(args_list) < 4:
+            print("** value missing **")
+            return
+        try:
+            cls = eval(args_list[0])
+            instance = storage.get(cls, args_list[1])
+            if instance:
+                attr_name = args_list[2]
+                attr_value = args_list[3]
+                try:
+                    attr_value = eval(attr_value)
+                except (NameError, SyntaxError):
+                    pass
+                setattr(instance, attr_name, attr_value)
+                instance.save()
             else:
-                instance_id = arg_list[1]
-                from models import storage
-                all_data = storage.all()
-                key_to_update = f"{class_name}.{instance_id}"
-
-                if key_to_update not in all_data:
-                    print("** no instance found **")
-                elif len(arg_list) < 3:
-                    print("** attribute name missing **")
-                elif len(arg_list) < 4:
-                    print("** value missing **")
-                else:
-                    attribute_name = arg_list[2]
-                    attribute_value = arg_list[3]
-
-                    try:
-                        attribute_value = eval(attribute_value)
-                    except(ValueError, SyntaxError, TypeError):
-                        pass
-
-                    instance_data = all_data[key_to_update]
-                    instance_data[attribute_name] = attribute_value
-                    ut = datetime.now().strftime(BaseModel.__fmt_datetime)
-                    instance_data['updated_at'] = ut
-                    storage.save()
+                print("** no instance found **")
+        except NameError:
+            print("** class doesn't exist **")
 
 
 if __name__ == '__main__':

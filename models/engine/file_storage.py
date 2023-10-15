@@ -2,7 +2,11 @@
 """This module defines the storage class"""
 import json
 import os
-
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 from models.base_model import BaseModel
 
 
@@ -12,25 +16,31 @@ class FileStorage:
 
     def all(self) -> dict:
         """Returns the dictionary __Ojects"""
-        return self.__objects
+        return FileStorage.__objects
 
     def new(self, obj: BaseModel):
         """
-        Sets a new objects
-        In __objects the obj with key <obj class name>.id
+        Sets a new object in __objects with key <obj class name>.id
         """
-        k = f"{obj.get_name()}.{obj.id}"
-        self.__objects[k] = obj.to_dict()
+        key = "{}.{}".format(obj.__class__.__name__, obj.id)
+        self.__objects[key] = obj
 
     def save(self):
         """Serialzies __objects to a json"""
-        json_object = json.dumps(self.__objects)
 
+        obj_dict = {
+                k: obj.to_dict() for k, obj in FileStorage.__objects.items()
+                }
         with open(self.__file_path, 'w') as fp:
-            fp.write(json_object)
+            json.dump(obj_dict, fp)
 
     def reload(self):
         """Deserializes a json file to __objects"""
         if os.path.exists(self.__file_path):
-            with open(self.__file_path) as user_file:
-                self.__objects = json.load(user_file)
+            with open(self.__file_path, 'r', encoding='utf-8') as user_file:
+                data = json.load(user_file)
+                for key, value in data.items():
+                    class_name, obj_id = key.split('.')
+                    obj_data = value
+                    obj = globals()[class_name](**obj_data)
+                    FileStorage.__objects[key] = obj
