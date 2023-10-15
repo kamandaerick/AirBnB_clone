@@ -92,6 +92,18 @@ class HBNBCommand(cmd.Cmd):
         else:
             print("** class doesn't exist **")
 
+    def do_count(self, args):
+        """Retrieve the number of instances of a class"""
+        args_list = args.split()
+        if not args:
+            print("** class name missing **")
+        elif args_list[0] in classes:
+            cls = eval(args_list[0])
+            count = len(cls.all())
+            print(count)
+        else:
+            print("** class doesn't exist **")
+
     def do_update(self, args):
         """Update an instance based on the class name and id
          by adding or updating attribute (save change into json)
