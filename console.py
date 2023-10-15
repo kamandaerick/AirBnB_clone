@@ -24,108 +24,132 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """Create a new instance of BaseModel and save to JSON"""
-
-        if not arg:
+        if args == BaseModel.get_name():
+            new_base_model = BaseModel()
+            new_base_model.save()
+            print(new_base_model.id)
+        elif not args:
             print("** class name missing **")
-            return
-        try:
-            new_user = User()
-            for pair in arg.split(','):
-                key, value = [part.strip() for part in pair.split('=')]
-                setattr(new_user, key, value)
-            new_user.save()
-            print(new_user.id)
-        except Exception as e:
-            print(e)
+        elif args != BaseModel.get_name():
+            print("** class doesn't exist **")
 
     def do_show(self, args):
         """Print the string representation of an
         instance based on class name and id"""
-
-        if not arg:
+        if not args:
             print("** class name missing **")
-            return
-        try:
-            class_name, obj_id = arg.split(' ')
-            obj = storage.all().get(f'{class_name}.{obj_id}')
-            if obj:
-                print(obj)
+        elif len(args.split()) == 1:
+            # first if
+            if args != BaseModel.get_name():
+                print("** class doesn't exist **")
             else:
-                print("** no instance found **")
-        except Exception as e:
-            print(e)
+                print("** instance id missing **")
+        elif len(args.split()) == 2:
+            _name = args.split()[0]
+            _id = args.split()[1]
+            if _name != BaseModel.get_name():
+                print("** class doesn't exist **")
+            else:
+                # access the stored models
+                from models import storage
+                data = list(storage.all().values())
+                for d in data:
+                    if d.get('id') == _id:
+                        bm = BaseModel(**d)
+                        print(str(bm))
+                        break
+                    else:
+                        print('** no instance found **')
+                        break
 
     def do_destroy(self, args):
         """Destroys an object"""
-
-        if not arg:
+        if not args:
             print("** class name missing **")
-            return
+        elif len(args.split()) == 1:
+            if args != BaseModel.get_name():
+                print("** class doesn't exist **")
+            else:
+                print("** instance id missing **")
+        elif len(args.split()) == 2:
+            _name = args.split()[0]
+            _id = args.split()[1]
+            if _name != BaseModel.get_name():
+                print("** class doesn't exist **")
+            else:
+                # access the stored models
+                from models import storage
 
-        args = arg.split()
-        if len(args) < 2:
-            print("** instance id missing **")
-            return
+                _data = storage.all()
+                data = _data.items()
+                key_to_del = ''
+                for k, v in data:
+                    if v.get('id') == _id:
+                        key_to_del = k
+                        break
+                    else:
+                        print('** no instance found **')
+                        break
 
-        class_name = args[0]
-        obj_id = args[1]
-        if f"{class_name}.{obj_id}" not in storage.all():
-            print("** no instance found **")
-            return
-
-        del storage.all()[f"{class_name}.{obj_id}"]
-        storage.save()
+                del _data[key_to_del]
+                for k, v in _data.items():
+                    bm = BaseModel(**v)
+                    bm.save()
 
     def do_all(self, args):
         """Print all string representation of all instances
         based or not on the class name"""
-
-        class_name = arg if arg else None
-        obj_list = []
-
-        for key, value in storage.all().items():
-            if class_name is None or key.split('.')[0] == class_name:
-                obj_list.append(str(value))
-
-        if obj_list:
-            print(obj_list)
-        else:
-            print("** no instances found **")
+        if len(args.split()) == 1 or len(args.split()) == 0:
+            if len(args.split()) == 1 and args != BaseModel.get_name():
+                print("** class doesn't exist **")
+            else:
+                from models import storage
+                all_data = []
+                data = list(storage.all().values())
+                for d in data:
+                    bm = BaseModel(**d)
+                    all_data.append(str(bm))
+                print(all_data)
 
     def do_update(self, args):
         """Update an instance based on the class name and id
          by adding or updating attribute (save change into json)
          """
-
-        if not arg:
+        if not args:
             print("** class name missing **")
-            return
+        else:
+            arg_list = args.split()
+            class_name = arg_list[0]
+            if class_name != BaseModel.get_name():
+                print("** class doesn't exist **")
+            elif len(arg_list) < 2:
+                print("** instance id missing **")
+            else:
+                instance_id = arg_list[1]
+                from models import storage
+                all_data = storage.all()
+                key_to_update = f"{class_name}.{instance_id}"
 
-        args = arg.split()
-        if len(args) < 2:
-            print("** instance id missing **")
-            return
+                if key_to_update not in all_data:
+                    print("** no instance found **")
+                elif len(arg_list) < 3:
+                    print("** attribute name missing **")
+                elif len(arg_list) < 4:
+                    print("** value missing **")
+                else:
+                    attribute_name = arg_list[2]
+                    attribute_value = arg_list[3]
 
-        class_name = args[0]
-        obj_id = args[1]
-        if f"{class_name}.{obj_id}" not in storage.all():
-            print("** no instance found **")
-            return
+                    try:
+                        attribute_value = eval(attribute_value)
+                    except(ValueError, SyntaxError, TypeError):
+                        pass
 
-        if len(args) < 3:
-            print("** attribute name missing **")
-            return
-
-        if len(args) < 4:
-            print("** value missing **")
-            return
-
-        attribute = args[2]
-        value = args[3]
-
-        obj = storage.all()[f"{class_name}.{obj_id}"]
-        setattr(obj, attribute, value)
-        obj.save()
+                    instance_data = all_data[key_to_update]
+                    instance_data[attribute_name] = attribute_value
+                    ut = datetime.now().strftime(BaseModel.__fmt_datetime)
+                    instance_data['updated_at'] = ut
+                    storage.save()
 
 
 if __name__ == '__main__':
