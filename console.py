@@ -34,8 +34,8 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
 
     def do_show(self, args):
-        """Print the string representation of an instance
-        based on class name and id"""
+        """Print the string representation of an
+        instance based on class name and id"""
         if not args:
             print("** class name missing **")
         elif len(args.split()) == 1:
@@ -112,9 +112,44 @@ class HBNBCommand(cmd.Cmd):
                 print(all_data)
 
     def do_update(self, args):
-        """Update an instance based on the class name and id by
-        adding or updating attribute (save change into json)"""
-        pass
+        """Update an instance based on the class name and id
+         by adding or updating attribute (save change into json)
+         """
+        if not args:
+            print("** class name missing **")
+        else:
+            arg_list = args.split()
+            class_name = arg_list[0]
+            if class_name != BaseModel.get_name():
+                print("** class doesn't exist **")
+            elif len(arg_list) < 2:
+                print("** instance id missing **")
+            else:
+                instance_id = arg_list[1]
+                from models import storage
+                all_data = storage.all()
+                key_to_update = f"{class_name}.{instance_id}"
+
+                if key_to_update not in all_data:
+                    print("** no instance found **")
+                elif len(arg_list) < 3:
+                    print("** attribute name missing **")
+                elif len(arg_list) < 4:
+                    print("** value missing **")
+                else:
+                    attribute_name = arg_list[2]
+                    attribute_value = arg_list[3]
+
+                    try:
+                        attribute_value = eval(attribute_value)
+                    except(ValueError, SyntaxError, TypeError):
+                        pass
+
+                    instance_data = all_data[key_to_update]
+                    instance_data[attribute_name] = attribute_value
+                    ut = datetime.now().strftime(BaseModel.__fmt_datetime)
+                    instance_data['updated_at'] = ut
+                    storage.save()
 
 
 if __name__ == '__main__':
