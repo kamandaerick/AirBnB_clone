@@ -5,11 +5,22 @@ import uuid
 """Defines a base class for all models in our hbnb clone"""
 class BaseModel:
     """A base class for all hbnb models"""
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Initialize base model"""
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        if kwargs:
+            for key, value in kwargs.items():
+                if not "__class__" in key:
+                    setattr(self, key, value)
+                    if key == "id":
+                        self.id = str(uuid.uuid4())
+                    if key == "created_at":
+                        self.created_at = datetime.now()
+                    if key == "updated_at":
+                        self.updated_at = datetime.now()
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
 
     def __str__(self):
         """Returns a string representation of the instance"""
