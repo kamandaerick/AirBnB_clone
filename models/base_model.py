@@ -5,9 +5,9 @@ import uuid
 """Defines a base class for all models in our hbnb clone"""
 class BaseModel:
     """A base class for all hbnb models"""
-    def __init_(self, *args):
+    def __init__(self):
         """Initialize base model"""
-        self.id = uuid.uuid4()
+        self.id = str(uuid.uuid4())
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
@@ -26,8 +26,3 @@ class BaseModel:
         new_dict["created_at"] = self.created_at.isoformat()
         new_dict["updated_at"] = self.updated_at.isoformat()
         return new_dict
-
-my_model = BaseModel()
-my_model.name = "My First Model"
-my_model.my_number = 89
-print(my_model)
