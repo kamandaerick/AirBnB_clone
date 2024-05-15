@@ -23,3 +23,11 @@ class FileStorage:
             json_objects[key] = value
         with open(FileStorage.__file_path, 'w') as f:
             json.dump(json_objects, f)
+
+    def reload(self):
+        """Deserializes the JSON file to __objects"""
+        try:
+            with open(FileStorage.__file_path, 'r') as f:
+                FileStorage.__objects = json.load(f)
+        except FileNotFoundError:
+            pass
