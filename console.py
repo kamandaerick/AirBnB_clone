@@ -3,6 +3,7 @@
 
 import cmd
 from models.base_model import BaseModel
+from models.engine.file_storage import FileStorage
 
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
@@ -29,5 +30,22 @@ class HBNBCommand(cmd.Cmd):
             instance.save()
             print(instance.id)
 
+    def do_show(self, line):
+        """Print the string representation of an instance based on the class name and id"""
+        tokens = line.split()
+        if not tokens:
+            print("** class name missing **")
+            return
+        elif tokens[0] not in globals():
+            print("** class doesn't exist **")
+            return
+        elif len(tokens) == 1:
+            print("** instance id missing **")
+            return
+        instance_attribute = f"{tokens[0]}.{tokens[1]}"
+        if instance_attribute not in FileStorage.objects_copy:
+            print("** no instance found **")
+        instance = FileStorage.objects_copy[instance_attribute]
+        print(instance)
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
