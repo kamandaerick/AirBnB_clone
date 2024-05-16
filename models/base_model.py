@@ -1,9 +1,9 @@
 #!/usr/bin/python3
+"""Defines a base class for all models in our hbnb clone"""
+
 from datetime import datetime
 import uuid
 from models import storage
-
-"""Defines a base class for all models in our hbnb clone"""
 class BaseModel:
     """A base class for all hbnb models"""
     def __init__(self, *args, **kwargs):
