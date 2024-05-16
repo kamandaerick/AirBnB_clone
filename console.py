@@ -5,7 +5,6 @@ import cmd
 
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
-
     def do_EOF(self, line):
         """Quit the console"""
         return True
@@ -15,6 +14,22 @@ class HBNBCommand(cmd.Cmd):
 
     do_quit = do_EOF
     help_quit = help_EOF
+
+    """PROJECT-RELATED COMMANDS"""
+    def do_create(self, line):
+        pass
+
+    def do_show(self, line):
+        pass
+
+    def do_destroy(self, line):
+        pass
+
+    def do_all(self, line):
+        pass
+
+    def do_update(self, line):
+        pass
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
