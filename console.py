@@ -17,19 +17,13 @@ class HBNBCommand(cmd.Cmd):
 
     """PROJECT-RELATED COMMANDS"""
     def do_create(self, line):
-        pass
-
-    def do_show(self, line):
-        pass
-
-    def do_destroy(self, line):
-        pass
-
-    def do_all(self, line):
-        pass
-
-    def do_update(self, line):
-        pass
+        """Create a new instance of BaseModel and save it to JSON file and Print its id"""
+        instance = BaseModel().save()
+        print(instance.id)
+        if not line:
+            print("** class name missing **")
+        elif line not in globals():
+            print("** class doesn't exist **")
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
