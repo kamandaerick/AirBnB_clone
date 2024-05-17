@@ -1,8 +1,8 @@
 #!/usr/bin/python3
+"""This module defines a class to manage file storage for AirBnB clone"""
 
 import json
 
-"""This module defines a class to manage file storage for AirBnB clone"""
 class FileStorage:
     """This class serializes instances to a JSON file and deserializes JSON file to instances"""
     __file_path = "file.json"
@@ -27,10 +27,16 @@ class FileStorage:
     def reload(self):
         """Deserializes the JSON file to __objects"""
         from models.base_model import BaseModel
+        from models.user import User
         try:
             with open(self.__file_path, 'r') as f:
                 for key, value in (json.load(f)).items():
-                    self.__objects[key] = BaseModel(**value)
+                    class_name = key.split('.')[0]
+                    if class_name == "BaseModel":
+                        self.__objects[key] = BaseModel(**value)
+                    if class_name == "User":
+                        self.__objects[key] = User(**value)
         except FileNotFoundError:
             pass
+
     objects_copy = __objects
