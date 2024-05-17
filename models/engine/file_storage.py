@@ -32,6 +32,7 @@ class FileStorage:
         from models.amenity import Amenity
         from models.place import Place
         from models.review import Review
+        from models.city import City
         try:
             with open(self.__file_path, 'r') as f:
                 for key, value in (json.load(f)).items():

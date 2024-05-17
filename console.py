@@ -10,7 +10,7 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
-
+from count_instances import count_user, count_base_model, count_state, count_city, count_amenity, count_place, count_review
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
     def do_EOF(self, line):
@@ -28,6 +28,32 @@ class HBNBCommand(cmd.Cmd):
         """The deault class to handle unknown commands"""
         if line.strip() == "User.all()":
             self.do_all("User")
+        elif line.strip() == "BaseModel.all()":
+            self.do_all("BaseModel")
+        elif line.strip() == "State.all()":
+            self.do_all("State")
+        elif line.strip() == "City.all()":
+            self.do_all("City")
+        elif line.strip() == "Amenity.all()":
+            self.do_all("Amenity")
+        elif line.strip() == "Place.all()":
+            self.do_all("Place")
+        elif line.strip() == "Review.all()":
+            self.do_all("Review")
+        elif line.strip() == "User.count()":
+            self.do_count("User")
+        elif line.strip() == "BaseModel.count()":
+            self.do_count("BaseModel")
+        elif line.strip() == "State.count()":
+            self.do_count("State")
+        elif line.strip() == "City.count()":
+            self.do_count("City")
+        elif line.strip() == "Amenity.count()":
+            self.do_count("Amenity")
+        elif line.strip() == "Place.count()":
+            self.do_count("Place")
+        elif line.strip() == "Review.count()":
+            self.do_count("Review")
         else:
             print(" Unknown syntax: {}".format(line))
     def do_create(self, line):
@@ -116,6 +142,25 @@ class HBNBCommand(cmd.Cmd):
             return
         setattr(FileStorage.objects_copy[instance_attribute], tokens[2], tokens[3])
         FileStorage.save(FileStorage)
+
+    def do_count(self, line):
+        """Count the number of instances of a class"""
+        if line == "User":
+            print(count_user())
+        elif line == "BaseModel":
+            print(count_base_model())
+        elif line == "State":
+            print(count_state())
+        elif line == "City":
+            print(count_city())
+        elif line == "Amenity":
+            print(count_amenity())
+        elif line == "Place":
+            print(count_place())
+        elif line == "Review":
+            print(count_review())
+        else:
+            print("** class doesn't exist **")       
 
     
 if __name__ == '__main__':
