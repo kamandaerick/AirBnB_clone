@@ -24,6 +24,12 @@ class HBNBCommand(cmd.Cmd):
     help_quit = help_EOF
 
     """PROJECT-RELATED COMMANDS"""
+    def default(self, line):
+        """The deault class to handle unknown commands"""
+        if line.strip() == "User.all()":
+            self.do_all("User")
+        else:
+            print(" Unknown syntax: {}".format(line))
     def do_create(self, line):
         """Create a new instance of BaseModel and save it to JSON file and Print its id"""
         if not line:
@@ -110,7 +116,7 @@ class HBNBCommand(cmd.Cmd):
             return
         setattr(FileStorage.objects_copy[instance_attribute], tokens[2], tokens[3])
         FileStorage.save(FileStorage)
-    
+
     
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
