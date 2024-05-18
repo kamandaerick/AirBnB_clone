@@ -2,6 +2,7 @@
 """This is a commandline interpreter for commands specific to the AirBnB project"""
 
 import cmd
+import re
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
 from models.user import User
@@ -26,6 +27,32 @@ class HBNBCommand(cmd.Cmd):
     """PROJECT-RELATED COMMANDS"""
     def default(self, line):
         """The deault class to handle unknown commands"""
+        pattern_user = r'^User\.show\("([^"]+)"\)$'
+        match_user = re.match(pattern_user, line)
+        pattern_state = r'^State\.show\("([^"]+)"\)$'
+        match_state = re.match(pattern_state, line)
+        pattern_city = r'^City\.show\("([^"]+)"\)$'
+        match_city = re.match(pattern_city, line)
+        pattern_amenity = r'^Amenity\.show\("([^"]+)"\)$'
+        match_amenity = re.match(pattern_amenity, line)
+        pattern_place = r'^Place\.show\("([^"]+)"\)$'
+        match_place = re.match(pattern_place, line)
+        pattern_review = r'^Review\.show\("([^"]+)"\)$'
+        match_review = re.match(pattern_review, line)
+
+        pattern_d_user = r'^User\.destroy\("([^"]+)"\)$'
+        match_d_user = re.match(pattern_d_user, line)
+        pattern_d_state = r'^State\.destroy\("([^"]+)"\)$'
+        match_d_state = re.match(pattern_d_state, line)
+        pattern_d_city = r'^City\.destroy\("([^"]+)"\)$'
+        match_d_city = re.match(pattern_d_city, line)
+        pattern_d_amenity = r'^Amenity\.destroy\("([^"]+)"\)$'
+        match_d_amenity = re.match(pattern_d_amenity, line)
+        pattern_d_place = r'^Place\.destroy\("([^"]+)"\)$'
+        match_d_place = re.match(pattern_d_place, line)
+        pattern_d_review = r'^Review\.destroy\("([^"]+)"\)$'
+        match_d_review = re.match(pattern_d_review, line)
+
         if line.strip() == "User.all()":
             self.do_all("User")
         elif line.strip() == "BaseModel.all()":
@@ -54,8 +81,93 @@ class HBNBCommand(cmd.Cmd):
             self.do_count("Place")
         elif line.strip() == "Review.count()":
             self.do_count("Review")
+        elif match_user:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"User.{class_id}" in FileStorage.objects_copy:
+                self.do_show(f"User {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_state:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"State.{class_id}" in FileStorage.objects_copy:
+                self.do_show(f"State {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_city:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"City.{class_id}" in FileStorage.objects_copy:
+                self.do_show(f"City {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_amenity:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"Amenity.{class_id}" in FileStorage.objects_copy:
+                self.do_show(f"Amenity {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_place:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"Place.{class_id}" in FileStorage.objects_copy:
+                self.do_show(f"Place {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_review:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"Review.{class_id}" in FileStorage.objects_copy:
+                self.do_show(f"Review {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_d_user:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"User.{class_id}" in FileStorage.objects_copy:
+                self.do_destroy(f"User {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_d_state:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"State.{class_id}" in FileStorage.objects_copy:
+                self.do_destroy(f"State {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_d_city:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"City.{class_id}" in FileStorage.objects_copy:
+                self.do_destroy(f"City {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_d_amenity:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"Amenity.{class_id}" in FileStorage.objects_copy:
+                self.do_destroy(f"Amenity {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_d_place:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"Place.{class_id}" in FileStorage.objects_copy:
+                self.do_destroy(f"Place {class_id}")
+            else:
+                print("** no instance found **")
+        elif match_d_review:
+            command = line.strip().split("\"")
+            class_id = command[1].strip()
+            if f"Review.{class_id}" in FileStorage.objects_copy:
+                self.do_destroy(f"Review {class_id}")
+            else:
+                print("** no instance found **")    
+
         else:
-            print(" Unknown syntax: {}".format(line))
+            print("** no instance found **")
     def do_create(self, line):
         """Create a new instance of BaseModel and save it to JSON file and Print its id"""
         if not line:
